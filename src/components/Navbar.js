@@ -124,15 +124,6 @@ const Navbar = () => {
                         >
                           My Bookings
                         </Link>
-<<<<<<< HEAD
-                        <Link 
-                          to="/driver/dashboard" 
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          onClick={() => setIsProfileDropdownOpen(false)}
-                        >
-                          Driver Panel
-                        </Link>
-=======
                         {user.role === 'driver' && (
                           <Link 
                             to="/driver/dashboard" 
@@ -142,7 +133,6 @@ const Navbar = () => {
                             Driver Panel
                           </Link>
                         )}
->>>>>>> e609d61 (first commit)
                         {user.role === 'driver' ? (
                           <Link 
                             to="/register-taxi" 
@@ -271,15 +261,6 @@ const Navbar = () => {
                   >
                     My Bookings
                   </Link>
-<<<<<<< HEAD
-                  <Link 
-                    to="/driver/dashboard" 
-                    className="text-white hover:text-yellow-400 block px-3 py-2 text-base font-medium"
-                    onClick={toggleMenu}
-                  >
-                    Driver Panel
-                  </Link>
-=======
                   {user.role === 'driver' && (
                     <Link 
                       to="/driver/dashboard" 
@@ -289,7 +270,6 @@ const Navbar = () => {
                       Driver Panel
                     </Link>
                   )}
->>>>>>> e609d61 (first commit)
                   {user.role === 'driver' ? (
                     <Link 
                       to="/register-taxi" 

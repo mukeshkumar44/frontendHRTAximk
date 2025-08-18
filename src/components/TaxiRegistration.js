@@ -14,11 +14,7 @@ const TaxiRegistration = () => {
   const [documentFile, setDocumentFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-<<<<<<< HEAD
   const [success, setSuccess] = useState(false);
-=======
-  const [success, setSuccess] = useState('');
->>>>>>> e609d61 (first commit)
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -30,7 +26,9 @@ const TaxiRegistration = () => {
   };
 
   const handleFileChange = (e) => {
-    setDocumentFile(e.target.files[0]);
+    if (e.target.files && e.target.files[0]) {
+      setDocumentFile(e.target.files[0]);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -38,18 +36,26 @@ const TaxiRegistration = () => {
     setLoading(true);
     setError('');
     
+    if (!documentFile) {
+      setError('Please upload a document');
+      setLoading(false);
+      return;
+    }
+    
     try {
       const formDataToSend = new FormData();
       
       // Append all form fields
-      Object.keys(formData).forEach(key => {
-        formDataToSend.append(key, formData[key]);
-      });
+      formDataToSend.append('driverName', formData.driverName);
+      formDataToSend.append('vehicleNumber', formData.vehicleNumber);
+      formDataToSend.append('vehicleModel', formData.vehicleModel);
+      formDataToSend.append('vehicleType', formData.vehicleType);
+      formDataToSend.append('licenseNumber', formData.licenseNumber);
+      formDataToSend.append('phoneNumber', formData.phoneNumber);
+      formDataToSend.append('address', formData.address);
       
-      // Append the document file
-      if (documentFile) {
-        formDataToSend.append('documents', documentFile);
-      }
+      // Append the document file with the correct field name
+      formDataToSend.append('documents', documentFile);
       
       const response = await fetch('http://localhost:5000/api/taxis/register', {
         method: 'POST',
@@ -66,19 +72,11 @@ const TaxiRegistration = () => {
         throw new Error(data.message || 'Registration failed. Please try again.');
       }
       
-<<<<<<< HEAD
       setSuccess(true);
       
       // Redirect to profile after 2 seconds
       setTimeout(() => {
         navigate('/profile');
-=======
-      setSuccess('Taxi registration submitted for approval! You will be redirected to check your status.');
-      
-      // Redirect to taxi status page after 2 seconds
-      setTimeout(() => {
-        navigate('/taxi-status');
->>>>>>> e609d61 (first commit)
       }, 2000);
       
     } catch (err) {
@@ -105,11 +103,7 @@ const TaxiRegistration = () => {
 
         {success && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-<<<<<<< HEAD
             Registration successful! Redirecting...
-=======
-            {success}
->>>>>>> e609d61 (first commit)
           </div>
         )}
 

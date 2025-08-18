@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminService } from '../../services/api';
-<<<<<<< HEAD
-import { FiUsers, FiCalendar, FiTruck, FiPackage, FiAlertCircle, FiClock, FiDollarSign, FiTrendingUp } from 'react-icons/fi';
-=======
 import { 
   FiUsers, 
   FiCalendar, 
@@ -11,9 +8,10 @@ import {
   FiPackage, 
   FiImage,
   FiAlertCircle, 
-  FiDollarSign 
+  FiDollarSign,
+  FiClock,
+  FiTrendingUp
 } from 'react-icons/fi';
->>>>>>> e609d61 (first commit)
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -32,10 +30,7 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-<<<<<<< HEAD
   const [activeTab, setActiveTab] = useState('overview');
-=======
->>>>>>> e609d61 (first commit)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,10 +50,6 @@ const AdminDashboard = () => {
       try {
         setLoading(true);
         const response = await adminService.getDashboardStats();
-<<<<<<< HEAD
-        console.log('Dashboard API Response:', response); // Debug log
-=======
->>>>>>> e609d61 (first commit)
         
         if (response.data && response.data.success) {
           setStats({
@@ -81,12 +72,9 @@ const AdminDashboard = () => {
         }
       } catch (err) {
         console.error('Dashboard data error:', err);
-<<<<<<< HEAD
         let errorMessage = 'Failed to load dashboard data. Please try again later.';
         
         if (err.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
           console.error('Response data:', err.response.data);
           console.error('Response status:', err.response.status);
           
@@ -94,19 +82,13 @@ const AdminDashboard = () => {
             errorMessage += `\nError: ${err.response.data.error.message || 'Unknown error'}`;
           }
         } else if (err.request) {
-          // The request was made but no response was received
           console.error('No response received:', err.request);
           errorMessage = 'No response from server. Please check your connection.';
         } else {
-          // Something happened in setting up the request that triggered an Error
           console.error('Error:', err.message);
-          errorMessage = `Error: ${err.message}`;
         }
         
         setError(errorMessage);
-=======
-        setError('Failed to load dashboard data. Please try again later.');
->>>>>>> e609d61 (first commit)
       } finally {
         setLoading(false);
       }
@@ -114,13 +96,10 @@ const AdminDashboard = () => {
 
     checkAdminAccess();
     fetchDashboardData();
-<<<<<<< HEAD
     
     // Refresh data every 5 minutes
     const interval = setInterval(fetchDashboardData, 300000);
     return () => clearInterval(interval);
-=======
->>>>>>> e609d61 (first commit)
   }, [navigate]);
 
   const StatCard = ({ icon: Icon, title, value, color, onClick, trend, trendText }) => (
@@ -205,44 +184,61 @@ const AdminDashboard = () => {
           </div>
         </div>
 
+        {/* Tabs */}
+        <div className="border-b border-gray-200 mb-8">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`${activeTab === 'overview' ? 'border-orange-500 text-orange-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('bookings')}
+              className={`${activeTab === 'bookings' ? 'border-orange-500 text-orange-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Bookings
+            </button>
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`${activeTab === 'users' ? 'border-orange-500 text-orange-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Users
+            </button>
+          </nav>
+        </div>
+
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard 
-            icon={FiUsers} 
-            title="Total Users" 
+            icon={FiUsers}
+            title="Total Users"
             value={stats.totalUsers}
             color="blue"
-            trend={5.2}
-            trendText="from last month"
             onClick={() => navigate('/admin/users')}
+            trend={12}
+            trendText="vs last month"
           />
           <StatCard 
-            icon={FiCalendar} 
-            title="Total Bookings" 
+            icon={FiCalendar}
+            title="Total Bookings"
             value={stats.totalBookings}
             color="green"
-            trend={12.5}
-            trendText="from last month"
             onClick={() => navigate('/admin/bookings')}
           />
           <StatCard 
-            icon={FiTruck} 
-            title="Taxis" 
-            value={`${stats.totalTaxis} (${stats.pendingTaxiApprovals} pending)`}
+            icon={FiTruck}
+            title="Active Taxis"
+            value={stats.totalTaxis}
             color="purple"
             onClick={() => navigate('/admin/taxis')}
           />
           <StatCard 
-            icon={FiDollarSign} 
-            title="Total Revenue" 
-            value={new Intl.NumberFormat('en-IN', {
-              style: 'currency',
-              currency: 'INR',
-              maximumFractionDigits: 0
-            }).format(stats.totalRevenue || 0)}
-            color="orange"
-            trend={8.3}
-            trendText="from last month"
+            icon={FiPackage}
+            title="Tour Packages"
+            value={stats.totalPackages}
+            color="yellow"
+            onClick={() => navigate('/admin/tour-packages')}
           />
         </div>
 
@@ -251,40 +247,32 @@ const AdminDashboard = () => {
           <h2 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <QuickAction
-              icon={FiPackage}
-              title="Add New Package"
-              description="Create a new tour package"
-              color="bg-indigo-500"
-              onClick={() => navigate('/admin/tour-packages/new')}
-            />
-            <QuickAction
               icon={FiUsers}
-              title="Manage Users"
-              description="View and manage users"
+              title="Add New User"
+              description="Create a new user account"
               color="bg-blue-500"
-              onClick={() => navigate('/admin/users')}
+              onClick={() => navigate('/admin/users/new')}
             />
             <QuickAction
               icon={FiTruck}
-              title="Approve Taxis"
-              description={`${stats.pendingTaxiApprovals} pending approvals`}
+              title="Add New Taxi"
+              description="Register a new taxi"
               color="bg-purple-500"
-              onClick={() => navigate('/admin/taxis?status=pending')}
+              onClick={() => navigate('/admin/taxis/new')}
             />
             <QuickAction
-<<<<<<< HEAD
+              icon={FiPackage}
+              title="Create Package"
+              description="Add a new tour package"
+              color="bg-yellow-500"
+              onClick={() => navigate('/admin/tour-packages/new')}
+            />
+            <QuickAction
               icon={FiCalendar}
-              title="View Bookings"
-              description="Manage all bookings"
+              title="View Calendar"
+              description="Check booking calendar"
               color="bg-green-500"
-              onClick={() => navigate('/admin/bookings')}
-=======
-              icon={FiImage}
-              title="Manage Gallery"
-              description="Upload and manage images"
-              color="bg-pink-500"
-              onClick={() => navigate('/admin/gallery')}
->>>>>>> e609d61 (first commit)
+              onClick={() => navigate('/admin/calendar')}
             />
           </div>
         </div>
@@ -292,87 +280,106 @@ const AdminDashboard = () => {
         {/* Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Recent Bookings */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-medium text-gray-900">Recent Bookings</h2>
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+              <h3 className="text-lg leading-6 font-medium text-gray-900">Recent Bookings</h3>
+              <p className="mt-1 text-sm text-gray-500">Latest booking requests</p>
             </div>
-            <div className="divide-y divide-gray-200">
-              {stats.recentBookings && stats.recentBookings.length > 0 ? (
-                stats.recentBookings.map((booking) => (
-                  <div key={booking._id} className="p-4 hover:bg-gray-50 cursor-pointer"
-                    onClick={() => navigate(`/admin/bookings/${booking._id}`)}>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">{booking.user?.name || 'Guest'}</p>
-                        <p className="text-sm text-gray-500">{booking.tourPackage?.title || 'N/A'}</p>
+            <div className="bg-white overflow-hidden">
+              <ul className="divide-y divide-gray-200">
+                {stats.recentBookings.length > 0 ? (
+                  stats.recentBookings.map((booking) => (
+                    <li key={booking._id} className="px-4 py-4 sm:px-6 hover:bg-gray-50 cursor-pointer" onClick={() => navigate(`/admin/bookings/${booking._id}`)}>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-indigo-600 truncate">
+                            {booking.user?.name || 'Unknown User'}
+                          </p>
+                          <p className="mt-1 text-sm text-gray-500">
+                            {new Date(booking.createdAt).toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="ml-2 flex-shrink-0 flex">
+                          <p className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            booking.status === 'completed' 
+                              ? 'bg-green-100 text-green-800' 
+                              : booking.status === 'cancelled'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {booking.status}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium text-gray-900">
-                          {new Intl.NumberFormat('en-IN', {
-                            style: 'currency',
-                            currency: 'INR',
-                            maximumFractionDigits: 0
-                          }).format(booking.totalAmount || 0)}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {new Date(booking.bookingDate).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="p-6 text-center text-gray-500">
-                  No recent bookings found
-                </div>
-              )}
+                    </li>
+                  ))
+                ) : (
+                  <li className="px-4 py-4 sm:px-6 text-center text-gray-500 text-sm">
+                    No recent bookings found
+                  </li>
+                )}
+              </ul>
             </div>
-            <div className="px-6 py-3 bg-gray-50 text-right border-t border-gray-200">
+            <div className="bg-gray-50 px-4 py-4 sm:px-6 text-right">
               <button 
                 onClick={() => navigate('/admin/bookings')}
-                className="text-sm font-medium text-orange-600 hover:text-orange-700"
+                className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
               >
-                View all bookings →
+                View all bookings<span aria-hidden="true"> &rarr;</span>
               </button>
             </div>
           </div>
 
           {/* Recent Users */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-medium text-gray-900">New Users</h2>
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+              <h3 className="text-lg leading-6 font-medium text-gray-900">New Users</h3>
+              <p className="mt-1 text-sm text-gray-500">Recently registered users</p>
             </div>
-            <div className="divide-y divide-gray-200">
-              {stats.recentUsers && stats.recentUsers.length > 0 ? (
-                stats.recentUsers.map((user) => (
-                  <div key={user._id} className="p-4 hover:bg-gray-50 cursor-pointer"
-                    onClick={() => navigate(`/admin/users/${user._id}`)}>
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
-                        {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+            <div className="bg-white overflow-hidden">
+              <ul className="divide-y divide-gray-200">
+                {stats.recentUsers.length > 0 ? (
+                  stats.recentUsers.map((user) => (
+                    <li key={user._id} className="px-4 py-4 sm:px-6 hover:bg-gray-50 cursor-pointer" onClick={() => navigate(`/admin/users/${user._id}`)}>
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                          {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <div className="ml-4">
+                          <p className="text-sm font-medium text-gray-900">
+                            {user.name || 'Unknown User'}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {user.email}
+                          </p>
+                        </div>
+                        <div className="ml-auto">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            user.role === 'admin' 
+                              ? 'bg-purple-100 text-purple-800' 
+                              : user.role === 'driver'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-green-100 text-green-800'
+                          }`}>
+                            {user.role}
+                          </span>
+                        </div>
                       </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-900">{user.name || 'Guest User'}</p>
-                        <p className="text-sm text-gray-500">{user.email || 'No email provided'}</p>
-                      </div>
-                      <div className="ml-auto text-sm text-gray-500">
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="p-6 text-center text-gray-500">
-                  No recent users found
-                </div>
-              )}
+                    </li>
+                  ))
+                ) : (
+                  <li className="px-4 py-4 sm:px-6 text-center text-gray-500 text-sm">
+                    No recent users found
+                  </li>
+                )}
+              </ul>
             </div>
-            <div className="px-6 py-3 bg-gray-50 text-right border-t border-gray-200">
+            <div className="bg-gray-50 px-4 py-4 sm:px-6 text-right">
               <button 
                 onClick={() => navigate('/admin/users')}
-                className="text-sm font-medium text-orange-600 hover:text-orange-700"
+                className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
               >
-                View all users →
+                View all users<span aria-hidden="true"> &rarr;</span>
               </button>
             </div>
           </div>
@@ -382,8 +389,4 @@ const AdminDashboard = () => {
   );
 };
 
-<<<<<<< HEAD
 export default AdminDashboard;
-=======
-export default AdminDashboard;
->>>>>>> e609d61 (first commit)

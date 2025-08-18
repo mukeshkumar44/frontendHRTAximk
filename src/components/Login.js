@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { authService } from '../services/api';
-=======
-import React, { useState, useContext } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
->>>>>>> e609d61 (first commit)
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
@@ -14,14 +8,9 @@ const Login = () => {
     password: ''
   });
   const [error, setError] = useState('');
-<<<<<<< HEAD
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-=======
   const { login } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
->>>>>>> e609d61 (first commit)
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,32 +26,11 @@ const Login = () => {
     setError('');
     
     try {
-<<<<<<< HEAD
-      const response = await authService.login(credentials);
-      console.log('Login response:', response.data);
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      
-      // Redirect based on user role
-      if (response.data.user.role === 'admin') {
-        console.log('Admin user detected, redirecting to admin dashboard');
-        navigate('/admin/dashboard');
-      } else if (response.data.user.role === 'driver') {
-        console.log('Driver user detected, redirecting to driver dashboard');
-        navigate('/driver/dashboard');
-      } else {
-        console.log('Regular user detected, redirecting to home');
-        navigate('/');
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
-=======
       await login(credentials);
       // Redirect to auth-redirect which will handle the appropriate redirection
       navigate('/auth-redirect');
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.');
->>>>>>> e609d61 (first commit)
     } finally {
       setLoading(false);
     }

@@ -58,14 +58,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', response.data.token);
         
         // The backend returns user data in response.data.user
-<<<<<<< HEAD
-        if (response.data.user) {
-          const userData = {
-=======
         let userData;
         if (response.data.user) {
           userData = {
->>>>>>> e609d61 (first commit)
             id: response.data.user.id,
             name: response.data.user.name,
             email: response.data.user.email,
@@ -75,31 +70,19 @@ export const AuthProvider = ({ children }) => {
           
           localStorage.setItem('user', JSON.stringify(userData));
           setCurrentUser(userData);
-<<<<<<< HEAD
-=======
           
           // Return the user data including the role for redirection
           return { ...response.data, user: userData };
->>>>>>> e609d61 (first commit)
         } else {
           // If no user data in response, fetch it using the token
           const userResponse = await authService.getCurrentUser();
           if (userResponse.data) {
-<<<<<<< HEAD
-            localStorage.setItem('user', JSON.stringify(userResponse.data));
-            setCurrentUser(userResponse.data);
-          }
-        }
-        
-        return response.data;
-=======
             userData = userResponse.data;
             localStorage.setItem('user', JSON.stringify(userData));
             setCurrentUser(userData);
             return { ...response.data, user: userData };
           }
         }
->>>>>>> e609d61 (first commit)
       } else {
         throw new Error('Invalid response from server');
       }

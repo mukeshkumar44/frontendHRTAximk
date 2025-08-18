@@ -96,11 +96,7 @@ const Profile = () => {
               </div>
             </div>
             
-<<<<<<< HEAD
-            <div className="mt-8 flex justify-center space-x-4">
-=======
             <div className="mt-8 flex flex-wrap justify-center gap-4">
->>>>>>> e609d61 (first commit)
               <button 
                 onClick={() => navigate('/booking')} 
                 className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline transition duration-300"
@@ -114,8 +110,6 @@ const Profile = () => {
               >
                 My Bookings
               </button>
-<<<<<<< HEAD
-=======
 
               {user.role === 'driver' && (
                 <button 
@@ -125,7 +119,6 @@ const Profile = () => {
                   My Taxi Status
                 </button>
               )}
->>>>>>> e609d61 (first commit)
             </div>
           </div>
         )}

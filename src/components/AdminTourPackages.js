@@ -215,11 +215,7 @@ const AdminTourPackages = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="h-10 w-10 overflow-hidden rounded-md">
                       <img
-<<<<<<< HEAD
-                        src={`http://localhost:5000${pkg.image}`}
-=======
-                        src={pkg.image}
->>>>>>> e609d61 (first commit)
+                        src={pkg.image && (pkg.image.startsWith('http') ? pkg.image : `http://localhost:5000${pkg.image}`)}
                         alt={pkg.title}
                         className="h-full w-full object-cover"
                         onError={(e) => {
@@ -357,17 +353,13 @@ const AdminTourPackages = () => {
                     {selectedPackage?.image && !image && (
                       <div className="mt-2">
                         <p className="text-xs text-gray-500">Current Image:</p>
-                        <img 
-<<<<<<< HEAD
-                          src={`http://localhost:5000${selectedPackage.image}`} 
-                          alt="Current" 
-                          className="h-20 w-auto mt-1"
-=======
-                          src={selectedPackage.image}
-                          alt="Current" 
-                          className="h-20 w-auto mt-1 object-cover"
->>>>>>> e609d61 (first commit)
-                        />
+                        {selectedPackage?.image && (
+                          <img
+                            src={selectedPackage.image && (selectedPackage.image.startsWith('http') ? selectedPackage.image : `http://localhost:5000${selectedPackage.image}`)}
+                            alt="Current" 
+                            className="h-20 w-auto mt-1"
+                          />
+                        )}
                       </div>
                     )}
                   </div>

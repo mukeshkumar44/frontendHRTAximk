@@ -16,10 +16,7 @@ import OtpVerification from './components/OtpVerification';
 import Profile from './components/Profile';
 import MyBookings from './components/MyBookings';
 import TaxiRegistration from './components/TaxiRegistration';
-<<<<<<< HEAD
-=======
 import TaxiStatus from './components/TaxiStatus';
->>>>>>> e609d61 (first commit)
 import ProtectedRoute from './components/ProtectedRoute';
 import ProtectedDriverRoute from './components/auth/ProtectedDriverRoute';
 import DriverDashboard from './components/driver/DriverDashboard';
@@ -30,11 +27,8 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import AdminBookings from './components/admin/AdminBookings';
 import AdminTaxis from './components/admin/AdminTaxis';
 import AdminTourPackages from './components/AdminTourPackages';
-<<<<<<< HEAD
-=======
 import AdminGallery from './components/admin/AdminGallery';
 import AuthRedirect from './components/AuthRedirect';
->>>>>>> e609d61 (first commit)
 
 // Protected Route Component
 const ProtectedRouteComponent = ({ children, roles = [] }) => {
@@ -75,20 +69,14 @@ function App() {
               <Route path="/services" element={<Services />} />
               <Route path="/booking" element={<BookingForm/>} />
               <Route path="/destinations" element={<Destinations />} />
-<<<<<<< HEAD
-=======
               <Route path="/auth-redirect" element={<AuthRedirect />} />
->>>>>>> e609d61 (first commit)
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/verify-otp" element={<OtpVerification />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/my-bookings" element={<MyBookings />} />
               <Route path="/register-taxi" element={<TaxiRegistration />} />
-<<<<<<< HEAD
-=======
               <Route path="/taxi-status" element={<TaxiStatus />} />
->>>>>>> e609d61 (first commit)
               
               {/* Protected User Routes */}
               <Route
@@ -111,10 +99,7 @@ function App() {
                 <Route path="/admin/bookings" element={<AdminBookings />} />
                 <Route path="/admin/taxis" element={<AdminTaxis />} />
                 <Route path="/admin/tour-packages" element={<AdminTourPackages />} />
-<<<<<<< HEAD
-=======
                 <Route path="/admin/gallery" element={<AdminGallery />} />
->>>>>>> e609d61 (first commit)
               </Route>
               
               <Route path="*" element={

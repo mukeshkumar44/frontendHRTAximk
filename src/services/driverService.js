@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-import apiClient from './api';
-=======
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -21,7 +18,6 @@ apiClient.interceptors.request.use(config => {
   }
   return config;
 });
->>>>>>> e609d61 (first commit)
 
 const driverService = {
   // Get driver's profile
@@ -48,23 +44,31 @@ const driverService = {
   updateLocation: (location) => 
     apiClient.post('/driver/location', location),
   
-  // Toggle driver's online status
-  toggleOnlineStatus: (isOnline) => 
-    apiClient.patch('/driver/status', { isOnline }),
+  // Accept a booking
+  acceptBooking: (bookingId) => 
+    apiClient.patch(`/driver/bookings/${bookingId}/accept`),
+    
+  // Reject a booking
+  rejectBooking: (bookingId) => 
+    apiClient.patch(`/driver/bookings/${bookingId}/reject`),
+    
+  // Complete a booking
+  completeBooking: (bookingId) => 
+    apiClient.patch(`/driver/bookings/${bookingId}/complete`),
   
   // Get today's earnings
   getTodayEarnings: () => apiClient.get('/driver/earnings/today'),
   
   // Get driver's performance stats
   getPerformanceStats: (period = 'week') => 
-<<<<<<< HEAD
-    apiClient.get('/driver/stats', { params: { period } })
-=======
-    apiClient.get('/driver/stats', { params: { period } }),
-  
+    apiClient.get(`/driver/performance?period=${period}`),
+    
   // Get driver's taxi information
-  getMyTaxi: () => apiClient.get('/taxis/my-taxi')
->>>>>>> e609d61 (first commit)
+  getMyTaxi: () => apiClient.get('/driver/my-taxi'),
+  
+  // Update taxi status (online/offline)
+  updateTaxiStatus: (isOnline) => 
+    apiClient.patch('/driver/taxi/status', { isOnline })
 };
 
 export default driverService;

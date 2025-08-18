@@ -6,10 +6,7 @@ const TourPackages = () => {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-<<<<<<< HEAD
-=======
   const [imageLoaded, setImageLoaded] = useState({});
->>>>>>> e609d61 (first commit)
 
   useEffect(() => {
     const fetchTourPackages = async () => {
@@ -79,17 +76,6 @@ const TourPackages = () => {
               <div key={pkg._id} className="group bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
                 {/* Image with overlay */}
                 <div className="relative h-64 overflow-hidden">
-<<<<<<< HEAD
-                  <img 
-                    src={`http://localhost:5000${pkg.image}`} 
-                    alt={pkg.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = '/placeholder-tour.jpg';
-                    }}
-                  />
-=======
                   <div className="relative w-full h-full overflow-hidden">
                     {!imageLoaded[pkg._id] && (
                       <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
@@ -99,7 +85,7 @@ const TourPackages = () => {
                       </div>
                     )}
                     <img 
-                      src={pkg.image}
+                      src={pkg.image.startsWith('http') ? pkg.image : `http://localhost:5000${pkg.image}`}
                       alt={pkg.title}
                       className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!imageLoaded[pkg._id] ? 'opacity-0' : 'opacity-100'}`}
                       onLoad={() => setImageLoaded(prev => ({ ...prev, [pkg._id]: true }))}
@@ -110,7 +96,6 @@ const TourPackages = () => {
                       }}
                     />
                   </div>
->>>>>>> e609d61 (first commit)
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                   
                   {/* Popular badge */}
