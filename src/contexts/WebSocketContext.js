@@ -20,7 +20,7 @@ export const WebSocketProvider = ({ children }) => {
     if (!isAuthenticated || !user?._id) return;
 
     // Create socket connection
-    const newSocket = io(process.env.REACT_APP_API_URL, {
+    const newSocket = io('wss://backendhrtaxi.onrender.com', {
       auth: { token: localStorage.getItem('token') },
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,

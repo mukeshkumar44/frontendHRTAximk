@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { API_ENDPOINTS } from '../config/api';
 
 const AdminTourPackages = () => {
   const [packages, setPackages] = useState([]);
@@ -9,7 +10,7 @@ const AdminTourPackages = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
-  const [formData, setFormData] = useState({
+  const [formDataState, setFormDataState] = useState({
     title: '',
     description: '',
     price: '',
@@ -19,7 +20,9 @@ const AdminTourPackages = () => {
     features: ''
   });
   const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingPackage, setEditingPackage] = useState(null);
 
   // Get auth token
   const getAuthToken = () => {
@@ -30,10 +33,25 @@ const AdminTourPackages = () => {
   const fetchTourPackages = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/tour-packages');
-      setPackages(response.data.data);
-    } catch (err) {
-      console.error('Error fetching tour packages:', err);
+      const token = localStorage.getItem('token');
+      console.log('Fetching tour packages from:', API_ENDPOINTS.TOUR_PACKAGES);
+      
+      const response = await axios.get(API_ENDPOINTS.TOUR_PACKAGES, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });  
+      
+      console.log('Tour packages response:', response.data);
+      setPackages(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching tour packages:', error);
+      console.error('Error details:', {
+        message: error.message,
+        url: error.config?.url,
+        method: error.config?.method,
+        response: error.response?.data
+      });
       toast.error('Failed to load tour packages');
     } finally {
       setLoading(false);
@@ -47,23 +65,43 @@ const AdminTourPackages = () => {
   // Handle input change
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormDataState(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
   };
 
-  // Handle file input
-  const handleFileChange = (e) => {
-    if (e.target.files[0]) {
-      setImage(e.target.files[0]);
+  // Handle file input change
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file');
+        return;
+      }
+      
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size should be less than 5MB');
+        return;
+      }
+      
+      setImage(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   // Open modal for adding new package
   const openAddModal = () => {
-    setSelectedPackage(null);
-    setFormData({
+    setEditingPackage(null);
+    setFormDataState({
       title: '',
       description: '',
       price: '',
@@ -73,13 +111,14 @@ const AdminTourPackages = () => {
       features: ''
     });
     setImage(null);
+    setImagePreview(null);
     setIsModalOpen(true);
   };
 
   // Open modal for editing package
   const openEditModal = (pkg) => {
-    setSelectedPackage(pkg);
-    setFormData({
+    setEditingPackage(pkg);
+    setFormDataState({
       title: pkg.title,
       description: pkg.description,
       price: pkg.price,
@@ -96,50 +135,94 @@ const AdminTourPackages = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const formDataToSend = new FormData();
-    formDataToSend.append('title', formData.title);
-    formDataToSend.append('description', formData.description);
-    formDataToSend.append('price', formData.price);
-    formDataToSend.append('duration', formData.duration);
-    formDataToSend.append('location', formData.location);
-    formDataToSend.append('isPopular', formData.isPopular);
-    formDataToSend.append('features', formData.features);
-    
-    if (image) {
-      formDataToSend.append('image', image);
-    }
-
     try {
+      const formData = new FormData();
+      
+      // Append all form fields
+      Object.keys(formDataState).forEach(key => {
+        if (key === 'features' && formDataState[key]) {
+          // Convert features string to array
+          const featuresArray = formDataState[key].split(',').map(f => f.trim());
+          formData.append('features', JSON.stringify(featuresArray));
+        } else if (key === 'isPopular') {
+          // Convert boolean to string
+          formData.append('isPopular', formDataState[key].toString());
+        } else if (formDataState[key] !== null && formDataState[key] !== undefined) {
+          formData.append(key, formDataState[key]);
+        }
+      });
+      
+      // Append the image file if it exists
+      if (image) {
+        formData.append('image', image);
+      }
+
+      const token = localStorage.getItem('token');
       const config = {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${getAuthToken()}`
+          'Authorization': `Bearer ${token}`
         }
       };
 
-      if (selectedPackage) {
-        // Update existing package
-        await axios.put(
-          `http://localhost:5000/api/tour-packages/${selectedPackage._id}`,
-          formDataToSend,
-          config
-        );
-        toast.success('Package updated successfully');
-      } else {
-        // Create new package
-        await axios.post(
-          'http://localhost:5000/api/tour-packages',
-          formDataToSend,
-          config
-        );
-        toast.success('Package created successfully');
+      // Debug log the form data
+      console.log('Form Data:');
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
       }
       
-      setIsModalOpen(false);
+      const endpoint = editingPackage 
+        ? `${API_ENDPOINTS.TOUR_PACKAGES}/${editingPackage._id}`
+        : API_ENDPOINTS.TOUR_PACKAGES;
+
+      const method = editingPackage ? 'put' : 'post';
+      
+      console.log(`Making ${method.toUpperCase()} request to:`, endpoint);
+      
+      const response = await axios({
+        method,
+        url: endpoint,
+        data: formData,
+        headers: config.headers
+      });
+
+      console.log('Server response:', response.data);
+      
+      toast.success(editingPackage ? 'Package updated successfully' : 'Package created successfully');
+
+      // Reset form and close modal
+      setFormDataState({
+        title: '',
+        description: '',
+        price: '',
+        duration: '',
+        location: '',
+        isPopular: false,
+        features: ''
+      });
+      setImage(null);
+      setImagePreview(null);
+      setEditingPackage(null);
       fetchTourPackages();
-    } catch (err) {
-      console.error('Error saving package:', err);
-      toast.error(err.response?.data?.message || 'Error saving package');
+      setIsModalOpen(false);
+      
+    } catch (error) {
+      console.error('Error saving package:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          headers: error.config?.headers,
+          data: error.config?.data
+        }
+      });
+      
+      const errorMessage = error.response?.data?.message || 'Failed to save package. Please try again.';
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -155,7 +238,7 @@ const AdminTourPackages = () => {
   const handleDelete = async () => {
     try {
       await axios.delete(
-        `http://localhost:5000/api/tour-packages/${selectedPackage._id}`,
+        `${API_ENDPOINTS.TOUR_PACKAGES}/${selectedPackage._id}`,
         {
           headers: {
             'Authorization': `Bearer ${getAuthToken()}`
@@ -167,7 +250,7 @@ const AdminTourPackages = () => {
       fetchTourPackages();
     } catch (err) {
       console.error('Error deleting package:', err);
-      toast.error('Failed to delete package');
+      toast.error(err.response?.data?.message || 'Error deleting package');
     }
   };
 
@@ -215,7 +298,7 @@ const AdminTourPackages = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="h-10 w-10 overflow-hidden rounded-md">
                       <img
-                        src={pkg.image && (pkg.image.startsWith('http') ? pkg.image : `http://localhost:5000${pkg.image}`)}
+                        src={pkg.image && (pkg.image.startsWith('http') ? pkg.image : `${API_ENDPOINTS.BASE_URL.replace('/api', '')}${pkg.image}`)}
                         alt={pkg.title}
                         className="h-full w-full object-cover"
                         onError={(e) => {
@@ -268,7 +351,7 @@ const AdminTourPackages = () => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold">
-                  {selectedPackage ? 'Edit Package' : 'Add New Package'}
+                  {editingPackage ? 'Edit Package' : 'Add New Package'}
                 </h2>
                 <button
                   onClick={() => setIsModalOpen(false)}
@@ -287,7 +370,7 @@ const AdminTourPackages = () => {
                     <input
                       type="text"
                       name="title"
-                      value={formData.title}
+                      value={formDataState.title}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       required
@@ -298,7 +381,7 @@ const AdminTourPackages = () => {
                     <input
                       type="number"
                       name="price"
-                      value={formData.price}
+                      value={formDataState.price}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       required
@@ -309,7 +392,7 @@ const AdminTourPackages = () => {
                     <input
                       type="text"
                       name="duration"
-                      value={formData.duration}
+                      value={formDataState.duration}
                       onChange={handleChange}
                       placeholder="e.g., 5 Days / 4 Nights"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -321,7 +404,7 @@ const AdminTourPackages = () => {
                     <input
                       type="text"
                       name="location"
-                      value={formData.location}
+                      value={formDataState.location}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       required
@@ -332,7 +415,7 @@ const AdminTourPackages = () => {
                       type="checkbox"
                       id="isPopular"
                       name="isPopular"
-                      checked={formData.isPopular}
+                      checked={formDataState.isPopular}
                       onChange={handleChange}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
@@ -347,19 +430,34 @@ const AdminTourPackages = () => {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={handleFileChange}
-                      className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      onChange={handleImageChange}
+                      className="mt-1 block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-blue-50 file:text-blue-700
+                        hover:file:bg-blue-100"
                     />
-                    {selectedPackage?.image && !image && (
+                    {editingPackage?.image && !image && (
                       <div className="mt-2">
                         <p className="text-xs text-gray-500">Current Image:</p>
-                        {selectedPackage?.image && (
+                        {editingPackage?.image && (
                           <img
-                            src={selectedPackage.image && (selectedPackage.image.startsWith('http') ? selectedPackage.image : `http://localhost:5000${selectedPackage.image}`)}
+                            src={editingPackage.image && (editingPackage.image.startsWith('http') ? editingPackage.image : `${API_ENDPOINTS.BASE_URL.replace('/api', '')}${editingPackage.image}`)}
                             alt="Current" 
                             className="h-20 w-auto mt-1"
                           />
                         )}
+                      </div>
+                    )}
+                    {imagePreview && (
+                      <div className="mt-2">
+                        <p className="text-xs text-gray-500">Selected Image:</p>
+                        <img
+                          src={imagePreview}
+                          alt="Selected" 
+                          className="h-20 w-auto mt-1"
+                        />
                       </div>
                     )}
                   </div>
@@ -369,7 +467,7 @@ const AdminTourPackages = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                   <textarea
                     name="description"
-                    value={formData.description}
+                    value={formDataState.description}
                     onChange={handleChange}
                     rows="3"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -383,7 +481,7 @@ const AdminTourPackages = () => {
                   </label>
                   <textarea
                     name="features"
-                    value={formData.features}
+                    value={formDataState.features}
                     onChange={handleChange}
                     rows="2"
                     placeholder="e.g., Hotel, Meals, Sightseeing, Transfers"

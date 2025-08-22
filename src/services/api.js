@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://backendhrtaxi.onrender.com/api';
 
 // Create axios instance
 const apiClient = axios.create({
@@ -38,7 +38,22 @@ apiClient.interceptors.response.use(
 
 // API services
 export const bookingService = {
-  createBooking: (bookingData) => apiClient.post('/bookings', bookingData),
+  createBooking: async (bookingData) => {
+    try {
+      console.log('Sending booking data:', bookingData);
+      const response = await apiClient.post('/bookings', bookingData);
+      console.log('Booking response:', response.data);
+      return response;
+    } catch (error) {
+      console.error('Booking error:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers
+      });
+      throw error;
+    }
+  },
   getBookings: () => apiClient.get('/bookings'),
   getBookingById: (id) => apiClient.get(`/bookings/${id}`),
   updateBookingStatus: (id, status) => apiClient.patch(`/bookings/${id}/status`, { status })
@@ -61,7 +76,22 @@ export const authService = {
           'Content-Type': 'application/json'
         }
       });
-      console.log('Login successful:', response.data);
+      
+      console.log('Login successful - Full response:', {
+        status: response.status,
+        headers: response.headers,
+        data: response.data,
+        user: response.data?.user,
+        role: response.data?.user?.role
+      });
+      
+      // Ensure response has the expected structure
+      if (response.data && response.data.user) {
+        console.log('User role from API:', response.data.user.role);
+      } else {
+        console.warn('Login response missing user data:', response.data);
+      }
+      
       return response;
     } catch (error) {
       console.error('Login error details:', {

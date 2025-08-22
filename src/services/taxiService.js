@@ -1,6 +1,24 @@
 import axios from 'axios';
 import { API_URL } from '../config';
 
+// Register a new taxi
+export const registerTaxi = async (formData, token) => {
+  const config = {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  try {
+    const response = await axios.post(`${API_URL}/taxis/register`, formData, config);
+    return response.data;
+  } catch (error) {
+    console.error('Error registering taxi:', error);
+    throw error;
+  }
+};
+
 // Get current user's taxi status
 export const getMyTaxi = async (token) => {
   const config = {

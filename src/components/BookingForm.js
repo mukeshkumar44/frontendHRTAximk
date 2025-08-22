@@ -27,14 +27,55 @@ const BookingForm = () => {
     });
   };
 
+  const validateForm = () => {
+    const requiredFields = ['fullName', 'email', 'phone', 'pickupLocation', 'dropLocation', 'date', 'time', 'passengers', 'vehicleType'];
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    
+    if (missingFields.length > 0) {
+      setError(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      return false;
+    }
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    
+    // Phone number validation (at least 10 digits)
+    const phoneRegex = /^\d{10,}$/;
+    if (!phoneRegex.test(formData.phone.replace(/[^\d]/g, ''))) {
+      setError('Please enter a valid phone number (at least 10 digits)');
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setLoading(true);
     setError('');
     
     try {
-      const response = await bookingService.createBooking(formData);
+      // Format the data before sending
+      const bookingData = {
+        ...formData,
+        phone: formData.phone.replace(/[^\d]/g, ''), // Remove non-numeric characters
+        passengers: parseInt(formData.passengers, 10),
+        bookingDate: new Date(`${formData.date}T${formData.time}`).toISOString()
+      };
+      
+      console.log('Submitting booking:', bookingData);
+      const response = await bookingService.createBooking(bookingData);
       console.log('Booking created:', response.data);
+      
       setSuccess(true);
       setFormData({
         fullName: '',
@@ -59,7 +100,7 @@ const BookingForm = () => {
 
   return (
     <div
-      className="relative bg-cover bg-center bg-fixed"
+      className="relative bg-cover bg-center bg-fixed min-h-screen"
       style={{
         backgroundImage:
           "url('https://th.bing.com/th/id/OIP.nhsLfkTKM7jjEyqRfUjsdAHaEK?w=285&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3')",
@@ -69,18 +110,13 @@ const BookingForm = () => {
       <div className="absolute inset-0 bg-black bg-opacity-60"></div>
 
       {/* Main Content */}
-      <div className="relative z-10 py-12 ">
-       {/* Book Your Trip */}
-        <div className="w-full bg-gray-900 py-20 text-center">
-          <h2 className="text-4xl font-bold text-white mb-4">Book Your Trip</h2>
+      <div className="relative z-10 py-8">
+        {/* Book Your Trip */}
+        <div className="w-full bg-gray-900 py-12 text-center">
+          <h2 className="text-4xl font-bold text-white mb-4">Book Your Taxi</h2>
           <p className="text-white text-sm max-w-2xl mx-auto">
-            Reserve your taxi and travel service seamlessly with our detailed booking system to plan your journey
+            Reserve your taxi and travel service seamlessly with our detailed booking system
           </p>
-          <div className="flex justify-center mt-10">
-            <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-8 rounded-full transition duration-300">
-              Reserve
-            </button>
-          </div>
         </div>
 
         {/* Contact Us */}
@@ -98,11 +134,22 @@ const BookingForm = () => {
               <div className="text-green-500 text-5xl mb-4">✓</div>
               <h3 className="text-2xl font-bold mb-2">Thank You!</h3>
               <p className="text-gray-600">Your booking has been sent successfully. We'll get back to you soon.</p>
-              <button 
-                onClick={() => setSuccess(false)}
-                className="mt-6 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-full transition duration-300"
+              <button
+                type="submit"
+                className={`w-full ${loading ? 'bg-orange-400' : 'bg-orange-500 hover:bg-orange-600'} text-white font-semibold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline mt-6 transition duration-300 flex items-center justify-center`}
+                disabled={loading}
               >
-                Make Another Booking
+                {loading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  'Confirm Booking'
+                )}
               </button>
             </div>
           ) : (
@@ -192,10 +239,12 @@ const BookingForm = () => {
                 required
               >
                 <option value="">Select Vehicle Type</option>
-                <option value="sedan">Sedan</option>
-                <option value="suv">SUV</option>
-                <option value="luxury">Luxury</option>
-                <option value="van">Van</option>
+                <option value="hatchback">Hatchback (Up to 4 passengers)</option>
+                <option value="sedan">Sedan (Up to 4 passengers)</option>
+                <option value="suv">SUV (Up to 6 passengers)</option>
+                <option value="muv">MUV (Up to 7 passengers)</option>
+                <option value="luxury">Luxury Car (Up to 4 passengers)</option>
+                <option value="van">Van (Up to 10 passengers)</option>
               </select>
               <select
                 name="paymentMethod"
@@ -204,9 +253,10 @@ const BookingForm = () => {
                 className="w-full mb-4 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-orange-500"
                 required
               >
-                <option value="cash">Cash</option>
-                <option value="card">Card</option>
-                <option value="upi">UPI</option>
+                <option value="cash">Cash Payment</option>
+                <option value="card">Card Payment</option>
+                <option value="upi">UPI Payment</option>
+                <option value="wallet">Wallet Payment</option>
               </select>
               
               <textarea

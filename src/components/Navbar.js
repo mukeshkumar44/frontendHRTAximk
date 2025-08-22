@@ -80,8 +80,19 @@ const Navbar = () => {
                     >
                       My Profile
                     </Link>
+
+                    {/* Driver Dashboard Link */}
+                    {user && user.role === 'driver' && (
+                      <Link 
+                        to="/driver/dashboard" 
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsProfileDropdownOpen(false)}
+                      >
+                        Driver Dashboard
+                      </Link>
+                    )}
                     
-                    {/* यहां एडमिन और यूजर के लिए अलग-अलग मेनू आइटम्स दिखाएं */}
+                    {/* Admin Menu Items */}
                     {user && user.role === 'admin' ? (
                       // एडमिन मेनू आइटम्स
                       <>

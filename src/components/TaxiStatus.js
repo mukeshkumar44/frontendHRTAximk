@@ -9,7 +9,7 @@ const TaxiStatus = () => {
   useEffect(() => {
     const fetchTaxiStatus = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/taxis/my-taxi', {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/taxis/my-taxi`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
@@ -114,7 +114,7 @@ const TaxiStatus = () => {
               <dt className="text-sm font-medium text-gray-500">Documents</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 <a
-                  href={`http://localhost:5000${taxi.documents}`}
+                  href={`${process.env.REACT_APP_API_URL.replace('/api', '')}${taxi.documents}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-yellow-600 hover:text-yellow-500"

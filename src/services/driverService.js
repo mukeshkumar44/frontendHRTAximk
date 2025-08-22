@@ -1,12 +1,12 @@
 import axios from 'axios';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+import { API_ENDPOINTS } from '../config/api';
 
 // Create axios instance with auth token
 const apiClient = axios.create({
-  baseURL: API_URL,
+  baseURL: '', // Base URL is now handled by API_ENDPOINTS
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
   }
 });
 
@@ -17,58 +17,89 @@ apiClient.interceptors.request.use(config => {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
   return config;
+}, error => {
+  return Promise.reject(error);
 });
+
+// Add response interceptor for error handling
+apiClient.interceptors.response.use(
+  response => response,
+  error => {
+    console.error('API Error:', error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
 
 const driverService = {
   // Get driver's profile
-  getProfile: () => apiClient.get('/driver/me'),
-  
-  // Update driver's profile
-  updateProfile: (data) => apiClient.put('/driver/me', data),
-  
-  // Get driver's bookings
-  getMyBookings: (status = '') => {
-    const params = {};
-    if (status) params.status = status;
-    return apiClient.get('/driver/bookings', { params });
+  getProfile: async () => {
+    try {
+      const response = await apiClient.get(API_ENDPOINTS.DRIVER_PROFILE);
+      return response;
+    } catch (error) {
+      console.error('Error fetching driver profile:', error);
+      throw error;
+    }
   },
   
-  // Get booking details
-  getBookingDetails: (bookingId) => apiClient.get(`/driver/bookings/${bookingId}`),
+  // Note: Removed getMyTaxi function since we get taxi data from the profile
+  
+  // Get driver's bookings
+  getMyBookings: async (status = '') => {
+    try {
+      console.log('Fetching driver bookings...');
+      const params = status ? { status } : {};
+      const response = await apiClient.get(API_ENDPOINTS.DRIVER_BOOKINGS, { params });
+      return response;
+    } catch (error) {
+      console.error('Error fetching driver bookings:', error);
+      throw error;
+    }
+  },
   
   // Update booking status (accept/reject/complete)
-  updateBookingStatus: (bookingId, data) => 
-    apiClient.patch(`/driver/bookings/${bookingId}/status`, data),
+  updateBookingStatus: async (bookingId, status) => {
+    try {
+      const response = await apiClient.patch(`${API_ENDPOINTS.DRIVER_BOOKINGS}/${bookingId}`, { status });
+      return response;
+    } catch (error) {
+      console.error('Error updating booking status:', error);
+      throw error;
+    }
+  },
   
   // Update driver's current location
-  updateLocation: (location) => 
-    apiClient.post('/driver/location', location),
-  
-  // Accept a booking
-  acceptBooking: (bookingId) => 
-    apiClient.patch(`/driver/bookings/${bookingId}/accept`),
-    
-  // Reject a booking
-  rejectBooking: (bookingId) => 
-    apiClient.patch(`/driver/bookings/${bookingId}/reject`),
-    
-  // Complete a booking
-  completeBooking: (bookingId) => 
-    apiClient.patch(`/driver/bookings/${bookingId}/complete`),
-  
-  // Get today's earnings
-  getTodayEarnings: () => apiClient.get('/driver/earnings/today'),
-  
-  // Get driver's performance stats
-  getPerformanceStats: (period = 'week') => 
-    apiClient.get(`/driver/performance?period=${period}`),
-    
-  // Get driver's taxi information
-  getMyTaxi: () => apiClient.get('/driver/my-taxi'),
+  updateLocation: async (location) => {
+    try {
+      const response = await apiClient.post(API_ENDPOINTS.DRIVER_LOCATION, location);
+      return response;
+    } catch (error) {
+      console.error('Error updating location:', error);
+      throw error;
+    }
+  },
   
   // Update taxi status (online/offline)
-  updateTaxiStatus: (isOnline) => 
-    apiClient.patch('/driver/taxi/status', { isOnline })
+  updateTaxiStatus: async (isOnline) => {
+    try {
+      const response = await apiClient.patch(API_ENDPOINTS.DRIVER_STATUS, { isOnline });
+      return response;
+    } catch (error) {
+      console.error('Error updating taxi status:', error);
+      throw error;
+    }
+  },
+  
+  // Get today's earnings
+  getTodayEarnings: async () => {
+    try {
+      const response = await apiClient.get(API_ENDPOINTS.DRIVER_EARNINGS_TODAY);
+      return response;
+    } catch (error) {
+      console.error('Error fetching today\'s earnings:', error);
+      throw error;
+    }
+  }
 };
 
 export default driverService;

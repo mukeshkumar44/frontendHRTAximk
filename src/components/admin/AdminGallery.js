@@ -19,12 +19,18 @@ const AdminGallery = () => {
   // Fetch gallery images
   const fetchGalleryImages = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/gallery');
-      setImages(response.data.data);
+      const token = localStorage.getItem('token');
+      const response = await axios.get('https://backendhrtaxi.onrender.com/api/gallery', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      setImages(response.data.data || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching gallery images:', error);
-      toast.error('Failed to load gallery images');
+      toast.error(error.response?.data?.message || 'Failed to load gallery images');
       setLoading(false);
     }
   };
@@ -63,40 +69,20 @@ const AdminGallery = () => {
     }
 
     const formDataToSend = new FormData();
-    // Important: The field name must match what the server expects ('image')
     formDataToSend.append('image', formData.image);
-    // Add other form fields
     formDataToSend.append('title', formData.title);
     formDataToSend.append('description', formData.description);
     formDataToSend.append('category', formData.category);
     formDataToSend.append('isFeatured', formData.isFeatured ? 'true' : 'false');
 
-    // Log form data for debugging
-    console.log('Form data entries:');
-    for (let [key, value] of formDataToSend.entries()) {
-      console.log(key, value);
-    }
-
-    // Set the headers object
-    const config = {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    };
-
     try {
-      setUploading(true);
-      const response = await axios.post(
-        'http://localhost:5000/api/gallery', 
-        formDataToSend, 
-        {
-          ...config,
-          withCredentials: true
+      const token = localStorage.getItem('token');
+      await axios.post('https://backendhrtaxi.onrender.com/api/gallery', formDataToSend, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
         }
-      );
-      
-      console.log('Server response:', response.data);
+      });
       
       toast.success('Image uploaded successfully');
       setFormData({
@@ -122,9 +108,10 @@ const AdminGallery = () => {
     if (window.confirm('Are you sure you want to delete this image?')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/gallery/${id}`, {
+        await axios.delete(`https://backendhrtaxi.onrender.com/api/gallery/${id}`, {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
         

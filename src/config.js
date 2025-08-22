@@ -1,8 +1,8 @@
 // API Configuration
-export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+export const API_URL = 'https://backendhrtaxi.onrender.com/api';
 
 // WebSocket Configuration
-export const WS_URL = process.env.REACT_APP_WS_URL || 'http://localhost:5000';
+export const WS_URL = 'wss://backendhrtaxi.onrender.com';
 
 // Other configuration constants
 export const APP_NAME = 'HR Taxi Service';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { API_ENDPOINTS } from '../config/api';
 
 const TourPackages = () => {
   const [packages, setPackages] = useState([]);
@@ -11,7 +11,7 @@ const TourPackages = () => {
   useEffect(() => {
     const fetchTourPackages = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/tour-packages');
+        const response = await axios.get(API_ENDPOINTS.TOUR_PACKAGES);
         setPackages(response.data.data);
         setLoading(false);
       } catch (err) {
@@ -85,7 +85,7 @@ const TourPackages = () => {
                       </div>
                     )}
                     <img 
-                      src={pkg.image.startsWith('http') ? pkg.image : `http://localhost:5000${pkg.image}`}
+                      src={pkg.image.startsWith('http') ? pkg.image : `${process.env.REACT_APP_API_URL.replace('/api', '')}${pkg.image}`}
                       alt={pkg.title}
                       className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!imageLoaded[pkg._id] ? 'opacity-0' : 'opacity-100'}`}
                       onLoad={() => setImageLoaded(prev => ({ ...prev, [pkg._id]: true }))}

@@ -4,13 +4,13 @@ import { adminService } from '../../services/api';
 import { 
   FiUsers, 
   FiCalendar, 
-  FiTruck, 
-  FiPackage, 
-  FiImage,
-  FiAlertCircle, 
-  FiDollarSign,
+  FiDollarSign, 
   FiClock,
-  FiTrendingUp
+  FiTrendingUp,
+  FiImage,
+  FiAlertCircle,
+  FiTruck,
+  FiPackage
 } from 'react-icons/fi';
 
 const AdminDashboard = () => {
@@ -205,6 +205,12 @@ const AdminDashboard = () => {
             >
               Users
             </button>
+            <button
+              onClick={() => navigate('/admin/gallery')}
+              className={`${activeTab === 'gallery' ? 'border-orange-500 text-orange-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Gallery
+            </button>
           </nav>
         </div>
 
@@ -245,7 +251,7 @@ const AdminDashboard = () => {
         {/* Quick Actions */}
         <div className="mb-8">
           <h2 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <QuickAction
               icon={FiUsers}
               title="Add New User"
@@ -273,6 +279,13 @@ const AdminDashboard = () => {
               description="Check booking calendar"
               color="bg-green-500"
               onClick={() => navigate('/admin/calendar')}
+            />
+            <QuickAction
+              icon={FiImage}
+              title="Manage Gallery"
+              description="Add or remove gallery images"
+              color="bg-pink-500"
+              onClick={() => navigate('/admin/gallery')}
             />
           </div>
         </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../config/api';
 
 const Gallery = () => {
   const [images, setImages] = useState([]);
@@ -11,7 +12,7 @@ const Gallery = () => {
 
   const fetchImages = async (pageNum = 1) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/gallery?page=${pageNum}&limit=8`);
+      const response = await axios.get(`${API_ENDPOINTS.GALLERY}?page=${pageNum}&limit=8`);
       if (response.data.success) {
         if (pageNum === 1) {
           setImages(response.data.data);

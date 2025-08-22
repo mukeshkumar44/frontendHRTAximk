@@ -103,21 +103,9 @@ const AdminBookings = () => {
     setShowDeleteModal(true);
   };
 
-  const handleStatusUpdate = async (status) => {
-    try {
-      await adminService.updateBooking(selectedBooking._id, { status });
-      setBookings(bookings.map(booking => 
-        booking._id === selectedBooking._id ? { ...booking, status } : booking
-      ));
-      setShowStatusModal(false);
-      setSelectedBooking(null);
-    } catch (err) {
-      setError('Failed to update booking status');
-      console.error(err);
-    }
-  };
-
   const handleDeleteConfirm = async () => {
+    if (!selectedBooking) return;
+    
     try {
       await adminService.deleteBooking(selectedBooking._id);
       setBookings(bookings.filter(booking => booking._id !== selectedBooking._id));

@@ -14,7 +14,6 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [initialized, setInitialized] = useState(false);
 
   // Initialize auth state
@@ -49,8 +48,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       setLoading(true);
-      setError(null);
+      console.log('Starting login process...');
       const response = await authService.login(credentials);
+      
+      console.log('Login response received:', {
+        hasToken: !!response.data?.token,
+        userData: response.data?.user,
+        fullResponse: response.data
+      });
       
       // Ensure we have the expected response structure
       if (response.data?.token) {
@@ -60,37 +65,52 @@ export const AuthProvider = ({ children }) => {
         // The backend returns user data in response.data.user
         let userData;
         if (response.data.user) {
+          // Ensure role is set correctly - check both possible locations for role
+          const roleFromResponse = response.data.user.role || response.data.role;
+          const userRole = roleFromResponse || 'user';
+          
+          console.log('Creating user data with role:', userRole);
+          
           userData = {
-            id: response.data.user.id,
+            id: response.data.user.id || response.data.user._id,
             name: response.data.user.name,
             email: response.data.user.email,
-            role: response.data.user.role,
-            isVerified: response.data.user.isVerified
+            role: userRole.toLowerCase(), // Ensure lowercase for consistency
+            isVerified: response.data.user.isVerified || false
           };
           
+          console.log('Final user data being set:', userData);
           localStorage.setItem('user', JSON.stringify(userData));
           setCurrentUser(userData);
-          
-          // Return the user data including the role for redirection
           return { ...response.data, user: userData };
         } else {
+          console.log('No user data in response, fetching user info...');
           // If no user data in response, fetch it using the token
-          const userResponse = await authService.getCurrentUser();
-          if (userResponse.data) {
-            userData = userResponse.data;
-            localStorage.setItem('user', JSON.stringify(userData));
-            setCurrentUser(userData);
-            return { ...response.data, user: userData };
+          try {
+            const userResponse = await authService.getCurrentUser();
+            console.log('Fetched user data:', userResponse.data);
+            
+            if (userResponse.data) {
+              userData = {
+                ...userResponse.data,
+                role: (userResponse.data.role || 'user').toLowerCase()
+              };
+              console.log('Setting fetched user data:', userData);
+              localStorage.setItem('user', JSON.stringify(userData));
+              setCurrentUser(userData);
+              return { ...response.data, user: userData };
+            }
+          } catch (fetchError) {
+            console.error('Error fetching user data:', fetchError);
+            throw new Error('Failed to fetch user information');
           }
         }
       } else {
-        throw new Error('Invalid response from server');
+        console.error('Login failed:', response.data?.message || 'Invalid credentials');
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Login failed';
-      setError(errorMessage);
       console.error('Login error:', err);
-      throw new Error(errorMessage);
+      throw new Error(err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -99,11 +119,10 @@ export const AuthProvider = ({ children }) => {
   const signup = async (userData) => {
     try {
       setLoading(true);
-      setError(null);
       const response = await authService.register(userData);
       return response.data;
     } catch (err) {
-      setError(err.response?.data?.message || 'Signup failed');
+      console.error('Signup error:', err);
       throw err;
     } finally {
       setLoading(false);
@@ -127,7 +146,6 @@ export const AuthProvider = ({ children }) => {
   const value = {
     currentUser,
     loading,
-    error,
     initialized,
     login,
     logout,

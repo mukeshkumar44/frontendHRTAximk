@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { bookingService } from '../../services/api';
 
 const UserDashboard = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);

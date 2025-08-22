@@ -1,5 +1,3 @@
-import Navbar from './Navbar';
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { bookingService } from '../services/api';

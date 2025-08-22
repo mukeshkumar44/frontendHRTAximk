@@ -306,7 +306,7 @@ const AdminTaxis = () => {
                 <div className="col-span-full">
                   <p className="font-semibold">Documents:</p>
                   <a 
-                    href={`http://localhost:5000${selectedTaxi.documents}`} 
+                    href={`${process.env.REACT_APP_API_URL.replace('/api', '')}${selectedTaxi.documents}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:underline"
